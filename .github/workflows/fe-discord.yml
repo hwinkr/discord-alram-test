@@ -8,17 +8,16 @@ on:
   pull_request_review:
     types: [submitted]
 
+env:
+  harry: "harry"
+  ssunday: "useon"
+
 jobs:
   notify:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if issue contains [FE]
-        if: github.event.issue && contains(github.event.issue.title, '[FE]')
-        run: echo "Issue contains [FE]"
-        continue-on-error: true
-
-      - name: Send Discord notification for issue
+      - name: 새로운 이슈가 등록되면 디스코드 알림을 보낸다.
         if: github.event.issue && contains(github.event.issue.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -27,12 +26,7 @@ jobs:
           -d "{\"content\": \"New FE issue opened: ${{ github.event.issue.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
 
-      - name: Check if PR has frontend label
-        if: github.event.pull_request && contains(github.event.pull_request.labels.*.name, '프론트엔드')
-        run: echo "PR contains frontend label"
-        continue-on-error: true
-
-      - name: Send Discord notification for PR
+      - name: 새로운 PR이 등록되면 디스코드 알림을 보낸다.
         if: github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -42,7 +36,7 @@ jobs:
           $DISCORD_WEBHOOK_URL
 
       - name: Send Discord notification for PR review
-        if: github.event.review
+        if: github.event.review && (github.event.review.user.login == env.harry || github.event.review.user.login == env.ssunday)
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
