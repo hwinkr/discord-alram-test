@@ -9,6 +9,7 @@ on:
     types: [submitted]
 
 env:
+  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
   harry: "hwinkr"
   ssunday: "useon"
 
@@ -18,12 +19,11 @@ jobs:
 
     steps:
       - name: 새로운 이슈가 등록되면 디스코드 알림을 보낸다.
-        if: github.event.issue && contains(github.event.issue.title, '[FE]')
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        if: github.event.issue && (contains(github.event.issue.title, '[FE]') || contains(github.event.pull_request.labels.*.name, '프론트엔드'))
         run: |
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"New FE issue opened: ${{ github.event.issue.html_url }}\"}" \
+          -d "{\"content\": \"🍀 새로운 프론트엔드 이슈가 생성되었어요! 🧚: ${{ github.event.issue.html_url }}\"}" \
+          -d "{\"content\": \"🧑🏽‍💻 담당자: ${{ github.event.assignee.login }}\"}" \
           $DISCORD_WEBHOOK_URL
 
   notify_pr:
@@ -32,8 +32,6 @@ jobs:
     steps:
       - name: 새로운 PR이 등록되면 디스코드 알림을 보낸다.
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[FE]')
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"New frontend PR opened: ${{ github.event.pull_request.html_url }}\"}" \
@@ -45,12 +43,10 @@ jobs:
     steps:
       - name: 새로운 리뷰가 등록되면 디스코드 알림을 보낸다.
         if: contains(github.event.pull_request.labels.*.name, '프론트엔드') && github.event.review && (github.event.review.user.login == env.harry || github.event.review.user.login == env.ssunday)
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           echo "Pull request labels: ${{ toJson(github.event.pull_request.labels) }}"
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"New review submitted for PR by ${{ github.event.review.user.login }}: ${{ github.event.pull_request.html_url }}\"}" \
+          -d "{\"content\": \"${{ github.event.review.user.login }}: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
 
   notify_merge:
@@ -59,8 +55,6 @@ jobs:
     steps:
       - name: 풀 리퀘스트가 머지되면 디스코드 알림을 보낸다.
         if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"PR merged: ${{ github.event.pull_request.html_url }}\"}" \
