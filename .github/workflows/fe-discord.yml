@@ -30,12 +30,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 리뷰와 관련된 이벤트가 발생하면 PR 알림을 보내지 않는다.
-        if: github.event_name == 'pull_request_review'
-        run: exit 0
-
       - name: 새로운 PR이 등록되면 디스코드 알림을 보낸다.
-        if: github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
