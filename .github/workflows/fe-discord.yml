@@ -4,7 +4,7 @@ on:
   issues:
     types: [opened]
   pull_request:
-    types: [opened, labeled]
+    types: [opened]
   pull_request_review:
     types: [submitted]
 
@@ -27,7 +27,7 @@ jobs:
           $DISCORD_WEBHOOK_URL
 
       - name: 새로운 PR이 등록되면 디스코드 알림을 보낸다.
-        if: github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
+        if: !github.event.review && github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
