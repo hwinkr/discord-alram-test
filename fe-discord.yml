@@ -1,0 +1,51 @@
+name: Discord Notifications
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened, labeled]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if issue contains [FE]
+        if: github.event.issue && contains(github.event.issue.title, '[FE]')
+        run: echo "Issue contains [FE]"
+        continue-on-error: true
+
+      - name: Send Discord notification for issue
+        if: github.event.issue && contains(github.event.issue.title, '[FE]')
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"New FE issue opened: ${{ github.event.issue.html_url }}\"}" \
+          $DISCORD_WEBHOOK_URL
+
+      - name: Check if PR has frontend label
+        if: github.event.pull_request && contains(github.event.pull_request.labels.*.name, '프론트엔드')
+        run: echo "PR contains frontend label"
+        continue-on-error: true
+
+      - name: Send Discord notification for PR
+        if: github.event.pull_request && contains(github.event.pull_request.labels.*.name, 'frontend')
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"New frontend PR opened: ${{ github.event.pull_request.html_url }}\"}" \
+          $DISCORD_WEBHOOK_URL
+
+      - name: Send Discord notification for PR review
+        if: github.event.review
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"New review submitted for PR: ${{ github.event.pull_request.html_url }}\"}" \
+          $DISCORD_WEBHOOK_URL
