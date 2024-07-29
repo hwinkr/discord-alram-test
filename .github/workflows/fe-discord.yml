@@ -24,7 +24,6 @@ jobs:
         run: |
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\"}" \
-          -d "{\"content\": \"🧑🏽‍💻 담당자: ${{ github.event.assignee.login }}" \
           $DISCORD_WEBHOOK_URL
 
   notify_pr:
