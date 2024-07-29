@@ -9,7 +9,7 @@ on:
     types: [submitted]
 
 env:
-  harry: "harry"
+  harry: "hwinkr"
   ssunday: "useon"
 
 jobs:
