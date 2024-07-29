@@ -13,7 +13,7 @@ env:
   ssunday: "useon"
 
 jobs:
-  notify:
+  notify_issue:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +26,16 @@ jobs:
           -d "{\"content\": \"New FE issue opened: ${{ github.event.issue.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
 
+  notify_pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 리뷰와 관련된 이벤트가 발생하면 PR 알림을 보내지 않는다.
+        if: github.event_name == 'pull_request_review'
+        run: exit 0
+
       - name: 새로운 PR이 등록되면 디스코드 알림을 보낸다.
-        if: !github.event.review && github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
+        if: github.event.pull_request && contains(github.event.pull_request.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
@@ -35,11 +43,15 @@ jobs:
           -d "{\"content\": \"New frontend PR opened: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
 
-      - name: Send Discord notification for PR review
+  notify_review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 새로운 리뷰가 등록되면 디스코드 알림을 보낸다.
         if: github.event.review && (github.event.review.user.login == env.harry || github.event.review.user.login == env.ssunday)
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"New review submitted for PR: ${{ github.event.pull_request.html_url }}\"}" \
+          -d "{\"content\": \"New review submitted for PR by ${{ github.event.review.user.login }}: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
