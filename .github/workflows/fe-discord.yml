@@ -48,6 +48,7 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          echo "Pull request labels: ${{ toJson(github.event.pull_request.labels) }}"
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"New review submitted for PR by ${{ github.event.review.user.login }}: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
