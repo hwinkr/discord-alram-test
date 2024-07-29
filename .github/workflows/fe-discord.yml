@@ -9,8 +9,8 @@ on:
     types: [submitted]
 
 env:
-  harry: "hwinkr"
-  ssunday: "useon"
+  harry: "@해리"
+  ssunday: "@썬데이"
 
 jobs:
   notify_issue:
@@ -26,7 +26,7 @@ jobs:
           LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_LINKS=$(jq -r '.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\n제목: ${{ github.event.issue.title }}\n설명: ${{ github.event.issue.body }}\n할당된 사용자: ${ASSIGNEE_LINKS}\n라벨: ${LABELS}\"}" \
+          -d "{\"content\": \"🍀 새로운 이슈가 등록되었어요! 🧚: ${{ github.event.issue.html_url }}\n📂제목: ${{ github.event.issue.title }}\n👨🏻‍🏫 설명: ${{ github.event.issue.body }}\n🕺 할당된 사용자: ${ASSIGNEE_LINKS}\n🏷️ 라벨: ${LABELS}\"}" \
           $DISCORD_WEBHOOK_URL
 
   notify_pr:
