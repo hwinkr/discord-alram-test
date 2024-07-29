@@ -22,8 +22,8 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          ASSIGNEES=$(echo $GITHUB_EVENT_PATH | jq -r '.issue.assignees | map(.login) | join(", ")')
-          LABELS=$(echo $GITHUB_EVENT_PATH | jq -r '.issue.labels | map(.name) | join(", ")')
+          ASSIGNEES=$(jq -r '.issue.assignees | map(.login) | join(", ")' < $GITHUB_EVENT_PATH)
+          LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\n
                             제목: ${{ github.event.issue.title }}\n
