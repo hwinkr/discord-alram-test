@@ -47,6 +47,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 풀 리퀘스트 라벨에 '백엔드'가 포함되면 리뷰 알림을 보내지 않는다.
+        if: contains(github.event.pull_request.labels.*.name, '백엔드')
+        run: exit 0
+
       - name: 새로운 리뷰가 등록되면 디스코드 알림을 보낸다.
         if: github.event.review && (github.event.review.user.login == env.harry || github.event.review.user.login == env.ssunday)
         env:
