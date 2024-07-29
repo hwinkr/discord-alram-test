@@ -22,8 +22,12 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          echo "Reading issue assignees and labels"
+          ASSIGNEES=$(jq -r '.issue.assignees | map(.login) | join(", ")' < $GITHUB_EVENT_PATH)
+          LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
+          echo "Sending Discord notification"
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\"}" \
+          -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\n제목: ${{ github.event.issue.title }}\n설명: ${{ github.event.issue.body }}\n할당된 사용자: ${ASSIGNEES}\n라벨: ${LABELS}\"}" \
           $DISCORD_WEBHOOK_URL
 
   notify_pr:
