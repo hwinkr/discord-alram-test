@@ -18,12 +18,13 @@ jobs:
 
     steps:
       - name: 새로운 이슈가 등록되면 디스코드 알림을 보낸다.
-        if: github.event.issue && contains(github.event.issue.title, '[FE]')
+        if: github.event.issue && contains(github.event.issue.title, '[FE]') || contains(github.event.pull_request.labels.*.name, '프론트엔드')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"New FE issue opened: ${{ github.event.issue.html_url }}\"}" \
+          -d "{\"content\": \"새로운 이슈가 등록되었어요!: ${{ github.event.issue.html_url }}\"}" \
+          -d "{\"content\": \"🧑🏽‍💻 담당자: ${{ github.event.assignee.login }}" \
           $DISCORD_WEBHOOK_URL
 
   notify_pr:
