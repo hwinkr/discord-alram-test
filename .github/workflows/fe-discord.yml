@@ -52,3 +52,16 @@ jobs:
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"New review submitted for PR by ${{ github.event.review.user.login }}: ${{ github.event.pull_request.html_url }}\"}" \
           $DISCORD_WEBHOOK_URL
+
+  notify_merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 풀 리퀘스트가 머지되면 디스코드 알림을 보낸다.
+        if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"PR merged: ${{ github.event.pull_request.html_url }}\"}" \
+          $DISCORD_WEBHOOK_URL
