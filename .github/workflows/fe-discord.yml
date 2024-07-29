@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: 새로운 이슈가 등록되면 디스코드 알림을 보낸다.
-        if: github.event.issue && (contains(github.event.issue.title, '[FE]') || contains(github.event.pull_request.labels.*.name, '프론트엔드'))
+        if: github.event.issue && (contains(github.event.issue.title, '[FE]'))
         run: |
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"🍀 새로운 프론트엔드 이슈가 생성되었어요! 🧚: ${{ github.event.issue.html_url }}\"}" \
