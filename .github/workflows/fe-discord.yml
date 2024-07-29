@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 새로운 이슈가 등록되면 디스코드 알림을 보낸다.
-        if: github.event.issue && contains(github.event.issue.title, '[FE]') || contains(github.event.pull_request.labels.*.name, '프론트엔드')
+        if: github.event.issue && contains(github.event.issue.title, '[FE]')
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
