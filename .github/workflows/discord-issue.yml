@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 새로운 프론트엔드 이슈가 등록되면 디스코드 알림을 보낸다.
+      - name: 새로운 프론트엔드 이슈가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
         if: github.event.issue && contains(github.event.issue.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
@@ -23,7 +23,7 @@ jobs:
           -d "{\"content\": \"🍀 새로운 이슈가 등록되었어요! 🧚: ${{ github.event.issue.html_url }}\n📂 제목: ${{ github.event.issue.title }}\n🕺 담당 크루: ${ASSIGNEE_LINKS}\n🗝️ 업무 키워드: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
-      - name: 새로운 백엔드 이슈가 등록되면 디스코드 알림을 보낸다.
+      - name: 새로운 백엔드 이슈가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
         if: github.event.issue && contains(github.event.issue.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
