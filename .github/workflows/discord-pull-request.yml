@@ -42,7 +42,13 @@ jobs:
         if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
+          BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
+          ASSIGNEES=$(jq -r '.pull_request.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
+          LABELS=$(jq -r '.pull_request.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"PR merged: ${{ github.event.pull_request.html_url }}\"}" \
+          -d "{\"content\": \"✅ PR이 머지되었어요! 축하합니다~ 👏\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n📜 🕺 **담당 크루**: ${ASSIGNEES}\n🏷️ **라벨**: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"✅ PR이 머지되었어요! 축하합니다~ 👏\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n📜 🕺 **담당 크루**: ${ASSIGNEES}\n🏷️ **라벨**: ${LABELS}\"}" \
+          $BE_DISCORD_WEBHOOK_URL
