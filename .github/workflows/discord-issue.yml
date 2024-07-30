@@ -5,7 +5,14 @@ on:
     types: [opened, reopened]
 
 env:
-  harry: "@해리"
+  hwinkr: "@해리"
+  Yoonkyoungme: "@빙봉"
+  hw0603: "@페드로"
+  ikjo39: "@다온"
+  ehBeak: "@배키"
+  seokmyungham: "@재즈"
+  Largopie: "@낙타"
+  seunghye218: "@마크"
 
 jobs:
   notify_issue:
@@ -19,8 +26,10 @@ jobs:
         run: |
           LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_LINKS=$(jq -r '.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=$(jq -r '.issue.assignees | map(env[.login] // .login) | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTION_LINKS=$(jq -r '.issue.assignees | map("[\((env[.login] // .login))](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_LINKS}\n🗝️ **업무 키워드**: ${LABELS}\"}" \
+          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_MENTION_LINKS}\n🗝️ **업무 키워드**: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
       - name: 새로운 백엔드 이슈가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.

@@ -5,7 +5,14 @@ on:
     types: [opened, reopened, closed]
 
 env:
-  harry: "@해리"
+  hwinkr: "@해리"
+  Yoonkyoungme: "@빙봉"
+  hw0603: "@페드로"
+  ikjo39: "@다온"
+  ehBeak: "@배키"
+  seokmyungham: "@재즈"
+  Largopie: "@낙타"
+  seunghye218: "@마크"
 
 jobs:
   notify_pr:
