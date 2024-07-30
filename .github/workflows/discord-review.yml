@@ -61,7 +61,7 @@ jobs:
           COMMENTER_LINK="[${COMMENTER_MENTION}](https://github.com/${COMMENTER})"
           COMMENT=$(jq -r '.comment.body' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"💬 ${COMMENTER_LINK}님이 새로운 코멘트를 남겼어요!\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n🗣️ **코멘트 내용**: ${COMMENT}\"}" \
+          -d "{\"content\": \"💬 ${COMMENTER_LINK}님이 새로운 코멘트를 남겼어요!\n\n🔗 [PR 링크](${{ github.event.issue.pull_request.html_url }})\n📄 **제목**: ${{ github.event.issue.title }}\n🗣️ **코멘트 내용**: ${COMMENT}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
       - name: 백엔드 PR에 코멘트가 등록되면 디스코드 백엔드 채널에 알림을 보낸다.
