@@ -1,4 +1,4 @@
-name: Discord Notifications
+name: 리뷰 생성 시, 디스코드 알림
 
 on:
   pull_request_review:

@@ -1,4 +1,4 @@
-name: Discord Notifications
+name: 깃허브 이슈 생성 시, 디스코드 알림
 
 on:
   issues:
