@@ -18,7 +18,7 @@ jobs:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
           LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
-          ASSIGNEE_LINKS=$(jq -r 'env[.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_LINKS=$(jq -r '.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"🍀 새로운 이슈가 등록되었어요! 🧚: ${{ github.event.issue.html_url }}\n📂 제목: ${{ github.event.issue.title }}\n🕺 담당 크루: ${ASSIGNEE_LINKS}\n🗝️ 업무 키워드: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
@@ -29,7 +29,7 @@ jobs:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
           LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
-          ASSIGNEE_LINKS=$(jq -r 'env[.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_LINKS=$(jq -r '.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
           d "{\"content\": \"🍀 새로운 이슈가 등록되었어요! 🧚: ${{ github.event.issue.html_url }}\n📂 제목: ${{ github.event.issue.title }}\n🕺 담당 크루: ${ASSIGNEE_LINKS}\n🗝️ 업무 키워드: ${LABELS}\"}" \
           $BE_DISCORD_WEBHOOK_URL
