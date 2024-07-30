@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 새로운 프론트엔드 PR이 등록되면 디스코드 알림을 보낸다.
+      - name: 새로운 프론트엔드 PR이 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
         if: github.event_name == 'pull_request' && github.event.action == 'opened' && contains(github.event.pull_request.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
@@ -23,7 +23,7 @@ jobs:
           -d "{\"content\": \"🚀 새로운 프론트엔드 PR이 등록되었어요! 리뷰하러 가볼까요~?\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n🕺 **담당 크루**: ${ASSIGNEES}\n🏷️ **라벨**: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
-      - name: 새로운 백엔드 PR이 등록되면 디스코드 알림을 보낸다.
+      - name: 새로운 백엔드 PR이 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
         if: github.event_name == 'pull_request' && github.event.action == 'opened' && contains(github.event.pull_request.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
