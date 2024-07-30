@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: 새로운 프론트엔드 PR이 등록되면 디스코드 알림을 보낸다.
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[FE]')
+        if: github.event_name == 'pull_request' && github.event.action == 'opened' && contains(github.event.pull_request.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
@@ -24,7 +24,7 @@ jobs:
           $FE_DISCORD_WEBHOOK_URL
 
       - name: 새로운 백엔드 PR이 등록되면 디스코드 알림을 보낸다.
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[BE]')
+        if: github.event_name == 'pull_request' && github.event.action == 'opened' && contains(github.event.pull_request.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
