@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: 프론트엔드 PR에 코멘트가 등록되면 디스코드 프론트엔드 채널에 알림을 보낸다.
-        if: contains(github.event.pull_request.title, '[FE]')
+        if: github.event.issue.pull_request && contains(github.event.issue.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
