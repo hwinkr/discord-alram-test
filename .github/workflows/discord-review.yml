@@ -7,17 +7,32 @@ on:
     types: [created]
 
 env:
-  harry: "@해리"
+  hwinkr: "@해리"
 
 jobs:
   notify_review:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 새로운 프론트엔드 리뷰가 등록되면 디스코드 알림을 보낸다.
+      - name: 새로운 프론트엔드 리뷰가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
         if: contains(github.event.pull_request.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
+        run: |
+          REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
+          REVIEWER_MENTION=$(printenv $REVIEWER)
+          if [ -z "$REVIEWER_MENTION" ]; then
+            REVIEWER_MENTION=$REVIEWER
+          fi
+          REVIEWER_LINK="[${REVIEWER_MENTION}](https://github.com/${REVIEWER})"
+          curl -H "Content-Type: application/json" \
+          -d "{\"content\": \"💬 ${REVIEWER_LINK}님이 새로운 리뷰를 남겼어요! 리뷰를 반영해 주세요.\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          $FE_DISCORD_WEBHOOK_URL
+
+      - name: 새로운 백엔드 리뷰가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
+        if: contains(github.event.pull_request.title, '[BE]')
+        env:
+          BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
           REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
           REVIEWER_LINK="[${REVIEWER}](https://github.com/${REVIEWER})"
