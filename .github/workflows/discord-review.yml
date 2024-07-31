@@ -83,7 +83,11 @@ jobs:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
           REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
-          REVIEWER_LINK="[${REVIEWER}](https://github.com/${REVIEWER})"
+          REVIEWER_MENTION=$(printenv $REVIEWER)
+          if [ -z "$REVIEWER_MENTION" ]; then
+            REVIEWER_MENTION=$REVIEWER
+          fi
+          REVIEWER_LINK="[${REVIEWER_MENTION}](https://github.com/${REVIEWER})"
 
           ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_MENTIONS=""
@@ -105,7 +109,11 @@ jobs:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
           REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
-          REVIEWER_LINK="[${REVIEWER}](https://github.com/${REVIEWER})"
+          REVIEWER_MENTION=$(printenv $REVIEWER)
+          if [ -z "$REVIEWER_MENTION" ]; then
+            REVIEWER_MENTION=$REVIEWER
+          fi
+          REVIEWER_LINK="[${REVIEWER_MENTION}](https://github.com/${REVIEWER})"
 
           ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_MENTIONS=""
