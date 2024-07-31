@@ -99,7 +99,7 @@ jobs:
             ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}[${MENTION}](https://github.com/${ASSIGNEE}) "
           done
 
-          COMMENT_BODY=$(jq -r '.comment.body' < $GITHUB_EVENT_PATH)
+          COMMENT_BODY=$(jq -r '.review.body' < $GITHUB_EVENT_PATH)
 
           curl -H "Content-Type: application/json" \
           -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 새로운 코멘트를 남겼어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n📝 **코멘트 내용**: ${COMMENT_BODY}\"}" \
