@@ -17,10 +17,11 @@ env:
 jobs:
   notify_issue:
     runs-on: ubuntu-latest
+    if: github.event.issue
 
     steps:
       - name: 새로운 프론트엔드 이슈가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
-        if: github.event.issue && contains(github.event.issue.title, '[FE]')
+        if: contains(github.event.issue.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
@@ -29,16 +30,18 @@ jobs:
           ASSIGNEE_MENTIONS=$(jq -r '.issue.assignees | map(env[.login] // .login) | join(", ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_MENTION_LINKS=$(jq -r '.issue.assignees | map("[\((env[.login] // .login))](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_MENTION_LINKS}\n🗝️ **업무 키워드**: ${LABELS}\"}" \
+          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_MENTION_LINKS}\n🔑 **업무 키워드**: ${LABELS}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
       - name: 새로운 백엔드 이슈가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
-        if: github.event.issue && contains(github.event.issue.title, '[BE]')
+        if: contains(github.event.issue.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
           LABELS=$(jq -r '.issue.labels | map(.name) | join(", ")' < $GITHUB_EVENT_PATH)
           ASSIGNEE_LINKS=$(jq -r '.issue.assignees | map("[\(.login)](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=$(jq -r '.issue.assignees | map(env[.login] // .login) | join(", ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTION_LINKS=$(jq -r '.issue.assignees | map("[\((env[.login] // .login))](https://github.com/\(.login))") | join(", ")' < $GITHUB_EVENT_PATH)
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_LINKS}\n🗝️ **업무 키워드**: ${LABELS}\"}" \
+          -d "{\"content\": \"🍀 **새로운 이슈가 등록되었어요!** 🧚: ${{ github.event.issue.html_url }}\n📂 **제목**: ${{ github.event.issue.title }}\n🕺 **담당 크루**: ${ASSIGNEE_MENTION_LINKS}\n🔑 **업무 키워드**: ${LABELS}\"}" \
           $BE_DISCORD_WEBHOOK_URL

@@ -5,7 +5,7 @@ on:
     types: [submitted]
 
 env:
-  hwinkr: "@최현웅"
+  hwinkr: "@해리"
   Yoonkyoungme: "@빙봉"
   hw0603: "@페드로"
   ikjo39: "@다온"
@@ -39,11 +39,13 @@ jobs:
             if [ -z "$MENTION" ]; then
               MENTION=$ASSIGNEE
             fi
-            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}${MENTION} "
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}[${MENTION}](https://github.com/${ASSIGNEE}) "
           done
 
+          COMMENT_BODY=$(jq -r '.review.body' < $GITHUB_EVENT_PATH)
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"🚨 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 변경을 요청했어요! 리뷰를 반영해 주세요.\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n🚨 ${REVIEWER_LINK}님이 변경을 요청했어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📂 **제목**: ${{ github.event.pull_request.title }}\n📝 **요청 내용**: ${COMMENT_BODY}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
       - name: 새로운 백엔드 리뷰(REQUEST_CHANGE)가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
@@ -65,11 +67,13 @@ jobs:
             if [ -z "$MENTION" ]; then
               MENTION=$ASSIGNEE
             fi
-            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}${MENTION} "
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}[${MENTION}](https://github.com/${ASSIGNEE}) "
           done
 
+          COMMENT_BODY=$(jq -r '.review.body' < $GITHUB_EVENT_PATH)
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"🚨 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 변경을 요청했어요! 리뷰를 반영해 주세요.\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n🚨 ${REVIEWER_LINK}님이 변경을 요청했어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📂 **제목**: ${{ github.event.pull_request.title }}\n📝 **요청 내용**: ${COMMENT_BODY}\"}" \
           $BE_DISCORD_WEBHOOK_URL
 
   notify_commented:
@@ -110,6 +114,7 @@ jobs:
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
+          run: |
           REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
           REVIEWER_MENTION=$(printenv $REVIEWER)
           if [ -z "$REVIEWER_MENTION" ]; then
@@ -124,9 +129,11 @@ jobs:
             if [ -z "$MENTION" ]; then
               MENTION=$ASSIGNEE
             fi
-            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}${MENTION} "
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}[${MENTION}](https://github.com/${ASSIGNEE}) "
           done
 
+          COMMENT_BODY=$(jq -r '.review.body' < $GITHUB_EVENT_PATH)
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 새로운 코멘트를 남겼어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
-          $E_DISCORD_WEBHOOK_URL
+          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 새로운 코멘트를 남겼어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\n📝 **코멘트 내용**: ${COMMENT_BODY}\"}" \
+          $BE_DISCORD_WEBHOOK_URL
