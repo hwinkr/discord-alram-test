@@ -3,8 +3,6 @@ name: 리뷰 생성 시, 디스코드 알림
 on:
   pull_request_review:
     types: [submitted]
-  issue_comment:
-    types: [created]
 
 env:
   hwinkr: "@해리"
@@ -17,12 +15,13 @@ env:
   seunghye218: "@마크"
 
 jobs:
-  notify_review:
+  notify_changes_requested:
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'CHANGES_REQUESTED'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 새로운 프론트엔드 리뷰가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
-        if: github.event_name == 'pull_request_review' && contains(github.event.pull_request.title, '[FE]')
+      - name: 새로운 프론트엔드 리뷰(REQUEST_CHANE)가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
+        if: contains(github.event.pull_request.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
@@ -32,12 +31,23 @@ jobs:
             REVIEWER_MENTION=$REVIEWER
           fi
           REVIEWER_LINK="[${REVIEWER_MENTION}](https://github.com/${REVIEWER})"
+
+          ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=""
+          for ASSIGNEE in $ASSIGNEES; do
+            MENTION=$(printenv $ASSIGNEE)
+            if [ -z "$MENTION" ]; then
+              MENTION=$ASSIGNEE
+            fi
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}@${MENTION} "
+          done
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"💬 ${REVIEWER_LINK}님이 새로운 리뷰를 남겼어요! 리뷰를 반영해 주세요.\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          -d "{\"content\": \"🚨 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 변경을 요청했어요! 리뷰를 반영해 주세요.\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
-      - name: 새로운 백엔드 리뷰가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
-        if: github.event_name == 'pull_request_review' && contains(github.event.pull_request.title, '[BE]')
+      - name: 새로운 백엔드 리뷰(REQUEST_CHANGE)가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
+        if: contains(github.event.pull_request.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
@@ -47,42 +57,66 @@ jobs:
             REVIEWER_MENTION=$REVIEWER
           fi
           REVIEWER_LINK="[${REVIEWER_MENTION}](https://github.com/${REVIEWER})"
+
+          ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=""
+          for ASSIGNEE in $ASSIGNEES; do
+            MENTION=$(printenv $ASSIGNEE)
+            if [ -z "$MENTION" ]; then
+              MENTION=$ASSIGNEE
+            fi
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}@${MENTION} "
+          done
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"💬 ${REVIEWER_LINK}님이 새로운 리뷰를 남겼어요! 리뷰를 반영해 주세요.\n\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          -d "{\"content\": \"🚨 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 변경을 요청했어요! 리뷰를 반영해 주세요.\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
           $BE_DISCORD_WEBHOOK_URL
 
-  notify_comment:
+  notify_commented:
+    if: github.event_name == 'pull_request_review' && github.event.review.state == 'COMMENTED'
     runs-on: ubuntu-latest
 
     steps:
-      - name: 프론트엔드 PR에 코멘트가 등록되면 디스코드 프론트엔드 채널에 알림을 보낸다.
-        if: github.event.issue.pull_request && contains(github.event.issue.title, '[FE]')
+      - name: 새로운 프론트엔드 리뷰(COMMENT)가 등록되면 프론트엔드 채널에 디스코드 알림을 보낸다.
+        if: contains(github.event.pull_request.title, '[FE]')
         env:
           FE_DISCORD_WEBHOOK_URL: ${{ secrets.FE_DISCORD_WEBHOOK_URL }}
         run: |
-          COMMENTER=$(jq -r '.comment.user.login' < $GITHUB_EVENT_PATH)
-          COMMENTER_MENTION=$(printenv $COMMENTER)
-          if [ -z "$COMMENTER_MENTION" ]; then
-            COMMENTER_MENTION=$COMMENTER
-          fi
-          COMMENTER_LINK="[${COMMENTER_MENTION}](https://github.com/${COMMENTER})"
-          COMMENT=$(jq -r '.comment.body' < $GITHUB_EVENT_PATH)
+          REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
+          REVIEWER_LINK="[${REVIEWER}](https://github.com/${REVIEWER})"
+
+          ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=""
+          for ASSIGNEE in $ASSIGNEES; do
+            MENTION=$(printenv $ASSIGNEE)
+            if [ -z "$MENTION" ]; then
+              MENTION=$ASSIGNEE
+            fi
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}@${MENTION} "
+          done
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"💬 ${COMMENTER_LINK}님이 새로운 코멘트를 남겼어요!\n\n🔗 [PR 링크](${{ github.event.issue.pull_request.html_url }})\n📄 **제목**: ${{ github.event.issue.title }}\n🗣️ **코멘트 내용**: ${COMMENT}\"}" \
+          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 새로운 코멘트를 남겼어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
           $FE_DISCORD_WEBHOOK_URL
 
-      - name: 백엔드 PR에 코멘트가 등록되면 디스코드 백엔드 채널에 알림을 보낸다.
-        if: github.event.issue.pull_request && contains(github.event.issue.title, '[BE]')
+      - name: 새로운 백엔드 리뷰(COMMENT)가 등록되면 백엔드 채널에 디스코드 알림을 보낸다.
+        if: contains(github.event.pull_request.title, '[BE]')
         env:
           BE_DISCORD_WEBHOOK_URL: ${{ secrets.BE_DISCORD_WEBHOOK_URL }}
         run: |
-          COMMENTER=$(jq -r '.comment.user.login' < $GITHUB_EVENT_PATH)
-          COMMENTER_MENTION=$(printenv $COMMENTER)
-          if [ -z "$COMMENTER_MENTION" ]; then
-            COMMENTER_MENTION=$COMMENTER
-          fi
-          COMMENTER_LINK="[${COMMENTER_MENTION}](https://github.com/${COMMENTER})"
-          COMMENT=$(jq -r '.comment.body' < $GITHUB_EVENT_PATH)
+          REVIEWER=$(jq -r '.review.user.login' < $GITHUB_EVENT_PATH)
+          REVIEWER_LINK="[${REVIEWER}](https://github.com/${REVIEWER})"
+
+          ASSIGNEES=$(jq -r '.pull_request.assignees | map(.login) | join(" ")' < $GITHUB_EVENT_PATH)
+          ASSIGNEE_MENTIONS=""
+          for ASSIGNEE in $ASSIGNEES; do
+            MENTION=$(printenv $ASSIGNEE)
+            if [ -z "$MENTION" ]; then
+              MENTION=$ASSIGNEE
+            fi
+            ASSIGNEE_MENTIONS="${ASSIGNEE_MENTIONS}@${MENTION} "
+          done
+
           curl -H "Content-Type: application/json" \
-          -d "{\"content\": \"💬 ${COMMENTER_LINK}님이 새로운 코멘트를 남겼어요!\n\n🔗 [PR 링크](${{ github.event.issue.pull_request.html_url }})\n📄 **제목**: ${{ github.event.issue.title }}\n🗣️ **코멘트 내용**: ${COMMENT}\"}" \
-          $BE_DISCORD_WEBHOOK_URL
+          -d "{\"content\": \"📱 ${ASSIGNEE_MENTIONS}\n💬 ${REVIEWER_LINK}님이 새로운 코멘트를 남겼어요!\n🔗 [PR 링크](${{ github.event.pull_request.html_url }})\n📄 **제목**: ${{ github.event.pull_request.title }}\"}" \
+          $E_DISCORD_WEBHOOK_URL
